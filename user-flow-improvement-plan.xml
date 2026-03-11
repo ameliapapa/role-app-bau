@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<UserFlowImprovementPlan>
+  <Meta>
+    <Title>User Flow Improvement Plan</Title>
+    <Status>PlanningOnly</Status>
+    <Note>No product changes have been implemented yet. This document is for planning purposes only.</Note>
+  </Meta>
+
+  <Section id="user-flow-issues">
+    <Title>User Flow Issues (Feedback Incorporated)</Title>
+    <Note>
+      The items below capture reported issues in the current product experience. Proposed changes are documented in relevant sections later in this plan.
+    </Note>
+    <Issues>
+      <Issue id="onboarding-front-loads-abstract-concepts">
+        <Title>Onboarding front-loads abstract concepts</Title>
+        <Details>
+          Steps 3 (aspirational roles) and 4 (gravitational pull) introduce nuanced concepts before the user has experienced the app at all. Users are being asked to reflect on their relationship with each role before they&apos;ve logged a single minute of life. These steps would land better after a first week of use, when the data makes them meaningful.
+        </Details>
+        <WhatsBroken>Cognitive overload before value is demonstrated.</WhatsBroken>
+      </Issue>
+
+      <Issue id="dashboard-empty-state-no-first-action">
+        <Title>Dashboard empty state has no clear first action</Title>
+        <Details>
+          After onboarding, the user lands on a blank dashboard. The empty state says &quot;Your flow starts with a single moment. What are you doing right now?&quot; — but the + button is at the bottom of the screen in the nav bar. There&apos;s no visual arrow, no inline CTA, nothing connecting the prompt to the action. The FocusModeIndicator says &quot;Not focused&quot; which means nothing to a first-time user.
+        </Details>
+        <WhatsBroken>The onboarding exits but doesn&apos;t hand off to a clear next step.</WhatsBroken>
+      </Issue>
+
+      <Issue id="activity-templates-not-surfaced">
+        <Title>Activity templates are built but never surfaced</Title>
+        <Details>
+          Templates exist in state, can be created in Profile settings, and ship with 4 defaults. The QuickAdd modal never shows them. The Calendar page never shows them. They are completely invisible during the actual logging flow.
+        </Details>
+        <WhatsBroken>A time-saving feature that users will never discover.</WhatsBroken>
+      </Issue>
+
+      <Issue id="focus-mode-logging-disconnected">
+        <Title>Focus Mode and activity logging feel disconnected</Title>
+        <Details>
+          A user can set their focus to &quot;Work&quot; via the FocusModeIndicator, but nothing then prompts them to log activities for Work. The ambient background tint changes, but there&apos;s no feedback loop: &quot;You&apos;ve been focused on Work for 45 minutes — want to log it?&quot; The focus state and the activity log are two separate islands.
+        </Details>
+        <WhatsBroken>The two most important interactions don&apos;t reinforce each other.</WhatsBroken>
+      </Issue>
+
+      <Issue id="role-tap-replaces-entire-app">
+        <Title>Tapping a role replaces the entire app</Title>
+        <Details>
+          In App.tsx, tapping a role block sets viewingRoleId, which unmounts the whole main layout and renders RoleOverviewPage instead. There&apos;s no navigation stack — the user just loses context. From RoleOverviewPage they can only delete activities or tap Back. They can&apos;t log a new activity for that role, edit the role, or return to where they were in the time-period filter they had selected.
+        </Details>
+        <WhatsBroken>Navigation is destructive and the role detail page offers no useful actions.</WhatsBroken>
+      </Issue>
+
+      <Issue id="activity-log-page-not-rendered">
+        <Title>ActivityLogPage.tsx exists but is never rendered</Title>
+        <Details>
+          There&apos;s a full activity log page written and not wired into the app anywhere. The dashboard shows a maximum of 5 activities. There&apos;s no way for a user to see their full history.
+        </Details>
+        <WhatsBroken>A core piece of functionality is unreachable.</WhatsBroken>
+      </Issue>
+
+      <Issue id="profile-tab-feature-dumping-ground">
+        <Title>Profile tab is a feature dumping ground</Title>
+        <Details>
+          Role Management, Balance Goals, Transition Rituals, Activity Templates, and Data &amp; Privacy are all behind accordion sections in a single tab. A new user would never discover Balance Goals or Templates — they require actively exploring a Settings screen. These are not settings; they&apos;re core features of the app.
+        </Details>
+        <WhatsBroken>Feature discoverability. New users will use 20% of what the app offers.</WhatsBroken>
+      </Issue>
+
+      <Issue id="reflection-tab-passive">
+        <Title>Reflection tab is entirely passive</Title>
+        <Details>
+          There&apos;s no prompt, nudge, or indicator anywhere in the app that connects to the Reflect tab. No &quot;You haven&apos;t reflected this week&quot; badge on the nav icon. No completion state visible from other screens. The reflection feature requires the user to remember it exists and proactively navigate to it.
+        </Details>
+        <WhatsBroken>The feature has no trigger. Most users will forget it&apos;s there after day two.</WhatsBroken>
+      </Issue>
+
+      <Issue id="no-role-editing-after-creation">
+        <Title>No role editing after creation</Title>
+        <Details>
+          In Profile, roles can be paused or deleted but not edited. A user who misspells their role name or wants to change the emoji has to delete the role — which cascades and removes all its activity associations — and start over.
+        </Details>
+        <WhatsBroken>A basic CRUD operation is missing, with destructive consequences.</WhatsBroken>
+      </Issue>
+    </Issues>
+  </Section>
+
+  <Section id="onboarding">
+    <Summary>The onboarding experience is overloaded and cognitively heavy.</Summary>
+    <CurrentIssues>
+      <Issue id="onboarding-overloaded">
+        <Description>
+          Users are presented with too much information and too many decisions during onboarding, which can feel overwhelming and may cause drop-off.
+        </Description>
+      </Issue>
+      <Issue id="onboarding-abstract-concepts-too-early">
+        <Description>
+          Onboarding steps that rely on nuanced, reflective concepts (e.g., aspirational roles, gravitational pull) are introduced before users have logged any data, increasing cognitive load before value is demonstrated.
+        </Description>
+      </Issue>
+      <Issue id="role-question-no-suggestions">
+        <Description>
+          When users are asked about their roles, they are not given any suggestions or examples, forcing them to come up with roles from scratch.
+        </Description>
+      </Issue>
+    </CurrentIssues>
+    <ProposedImprovements>
+      <Improvement id="onboarding-simplify-steps" priority="high">
+        <Goal>Reduce cognitive load during onboarding.</Goal>
+        <Approach>
+          Break onboarding into clearer, smaller steps, and defer non-essential questions until the user has experienced core value (e.g., capturing first activities).
+        </Approach>
+        <Notes>
+          Consider a progress indicator and contextual help/tooltips instead of long upfront explanations.
+        </Notes>
+      </Improvement>
+      <Improvement id="move-abstract-onboarding-steps-later" priority="high">
+        <Goal>Make nuanced concepts meaningful by introducing them after usage data exists.</Goal>
+        <Approach>
+          Move steps like &quot;aspirational roles&quot; and &quot;gravitational pull&quot; out of first-run onboarding. Re-introduce them after ~1 week of activity logging, when the user has enough data/context to reflect productively.
+        </Approach>
+      </Improvement>
+      <Improvement id="role-suggestions-onboarding" priority="high">
+        <Goal>Help users define roles quickly and accurately during onboarding.</Goal>
+        <Approach>
+          Introduce role suggestions when asking for roles, such as:
+          "Friend", "Parent", "Partner", "Professional", "Leader", "Learner", "Artist", "Caregiver", "Community Member", "Athlete".
+        </Approach>
+        <ImplementationIdeas>
+          <Idea>Display suggested roles as selectable chips/pills that can be tapped to add.</Idea>
+          <Idea>Allow free-text entry in addition to suggestions for flexibility.</Idea>
+          <Idea>Use short example descriptions for a few roles to clarify what a "role" means.</Idea>
+        </ImplementationIdeas>
+      </Improvement>
+    </ProposedImprovements>
+  </Section>
+
+  <Section id="dashboard-first-run">
+    <Summary>The post-onboarding landing experience needs a clear first action and better handoff.</Summary>
+    <CurrentIssues>
+      <Issue id="empty-state-missing-cta-connection">
+        <Description>
+          The dashboard empty state prompt is not visually connected to the primary logging action (+), and first-time users don&apos;t understand status labels like &quot;Not focused&quot;.
+        </Description>
+      </Issue>
+    </CurrentIssues>
+    <ProposedImprovements>
+      <Improvement id="empty-state-inline-primary-cta" priority="high">
+        <Goal>Make the first activity log unmistakable.</Goal>
+        <Approach>
+          Add an inline primary CTA within the empty state (e.g., &quot;Log what you&apos;re doing&quot; button) that triggers the same flow as the + button. Visually link the prompt to the action (layout, arrow, or button placement).
+        </Approach>
+      </Improvement>
+      <Improvement id="first-run-focus-copy" priority="medium">
+        <Goal>Make focus state legible to a brand-new user.</Goal>
+        <Approach>
+          Replace &quot;Not focused&quot; with first-run-friendly copy (e.g., &quot;Pick a focus to guide your next log&quot;) and/or hide focus status until the user has used focus at least once.
+        </Approach>
+      </Improvement>
+    </ProposedImprovements>
+  </Section>
+
+  <Section id="templates-and-logging">
+    <Summary>Activity templates exist but are not discoverable in the logging flow.</Summary>
+    <CurrentIssues>
+      <Issue id="templates-invisible-in-quickadd-and-calendar">
+        <Description>
+          Templates can be created and default templates exist, but templates are not surfaced in the QuickAdd modal or Calendar, making the feature effectively undiscoverable.
+        </Description>
+      </Issue>
+    </CurrentIssues>
+    <ProposedImprovements>
+      <Improvement id="surface-templates-in-quickadd" priority="high">
+        <Goal>Make templates a first-class, time-saving path to logging.</Goal>
+        <Approach>
+          Show templates in QuickAdd (e.g., a &quot;Templates&quot; section with the default templates and user-created ones), and allow one-tap logging from a template.
+        </Approach>
+      </Improvement>
+      <Improvement id="surface-templates-in-calendar" priority="medium">
+        <Goal>Make templates discoverable in another high-frequency logging surface.</Goal>
+        <Approach>
+          Add templates to the Calendar page (e.g., quick chips above the day view) to enable rapid logging without searching.
+        </Approach>
+      </Improvement>
+    </ProposedImprovements>
+  </Section>
+
+  <Section id="focus-and-feedback-loop">
+    <Summary>Focus Mode and activity logging should reinforce each other.</Summary>
+    <CurrentIssues>
+      <Issue id="focus-logging-islands">
+        <Description>
+          Setting focus changes ambient UI but does not create a prompt, shortcut, or feedback loop into activity logging for that role.
+        </Description>
+      </Issue>
+    </CurrentIssues>
+    <ProposedImprovements>
+      <Improvement id="focus-to-log-nudge" priority="high">
+        <Goal>Create a loop between focus and logging.</Goal>
+        <Approach>
+          After a configurable duration focused on a role (e.g., 30–60 minutes), show a lightweight nudge like &quot;You&apos;ve been focused on Work for 45 minutes — log it?&quot; that opens QuickAdd prefilled with the focused role and suggested duration.
+        </Approach>
+      </Improvement>
+      <Improvement id="focus-prefills-logging" priority="medium">
+        <Goal>Reduce friction when logging while focused.</Goal>
+        <Approach>
+          When focus is set, default the role selector in the logging flow to the focused role and optionally highlight relevant templates for that role.
+        </Approach>
+      </Improvement>
+    </ProposedImprovements>
+  </Section>
+
+  <Section id="main-page-roles-visualization">
+    <Summary>The main page currently shows roles as rectangles, which is not meaningful.</Summary>
+    <CurrentIssues>
+      <Issue id="rectangular-role-display">
+        <Description>
+          Roles are displayed in a flat, rectangular format that does not convey how they relate to each other or to the user&apos;s overall life balance.
+        </Description>
+      </Issue>
+    </CurrentIssues>
+    <ProposedImprovements>
+      <Improvement id="roles-donut-visualization" priority="high">
+        <Goal>Represent roles as a holistic view of the user&apos;s life.</Goal>
+        <Approach>
+          Replace the rectangular role layout with a donut chart where each segment represents a role, visually making up the user&apos;s life.
+        </Approach>
+        <Details>
+          <Detail>Each role becomes a segment in a donut chart, with color-coding per role.</Detail>
+          <Detail>Segment size can represent time spent, importance, or a configurable metric.</Detail>
+          <Detail>Hover/tap on a segment shows quick stats: recent activities, percentage of time, and energizing vs non-energizing balance.</Detail>
+          <Detail>Consider a central label/title that reflects the overall life view (e.g., &quot;Your Roles&quot; or a short insight).</Detail>
+        </Details>
+        <RisksAndQuestions>
+          <Item>Need to decide what data determines segment size (equal vs weighted).</Item>
+          <Item>Accessibility considerations for color-blind users and screen readers.</Item>
+        </RisksAndQuestions>
+      </Improvement>
+    </ProposedImprovements>
+  </Section>
+
+  <Section id="navigation-and-role-details">
+    <Summary>Role navigation should preserve context and role pages should offer useful actions.</Summary>
+    <CurrentIssues>
+      <Issue id="destructive-role-navigation">
+        <Description>
+          Tapping a role replaces the entire app surface (no navigation stack), causing loss of context and limiting actions within the role detail experience.
+        </Description>
+      </Issue>
+      <Issue id="role-page-missing-actions">
+        <Description>
+          Role overview currently limits users to viewing/deleting activities and going Back; it does not support common next actions like logging a new activity for the role or editing the role.
+        </Description>
+      </Issue>
+    </CurrentIssues>
+    <ProposedImprovements>
+      <Improvement id="non-destructive-navigation" priority="high">
+        <Goal>Preserve app context when drilling into a role.</Goal>
+        <Approach>
+          Use a proper navigation pattern (route, stack, or modal sheet) so role details are navigated to without unmounting the entire main layout. Preserve filters/time period state on return.
+        </Approach>
+      </Improvement>
+      <Improvement id="role-overview-primary-actions" priority="high">
+        <Goal>Make role details actionable.</Goal>
+        <Approach>
+          Add primary actions on role overview such as &quot;Log activity&quot; (prefilled to the role), &quot;Edit role&quot;, and quick filters (e.g., energizing only).
+        </Approach>
+      </Improvement>
+    </ProposedImprovements>
+  </Section>
+
+  <Section id="activity-history">
+    <Summary>Users need a way to access their full activity history beyond the dashboard preview.</Summary>
+    <CurrentIssues>
+      <Issue id="activity-log-page-unreachable">
+        <Description>
+          The dashboard shows only a handful of activities and there is no user path to a full activity log/history view, even though a full activity log page exists.
+        </Description>
+      </Issue>
+    </CurrentIssues>
+    <ProposedImprovements>
+      <Improvement id="wire-activity-log-page" priority="high">
+        <Goal>Make full activity history reachable.</Goal>
+        <Approach>
+          Add navigation entry points to the full activity log (e.g., &quot;See all&quot; on dashboard recent activity, a dedicated tab, or a route accessible from profile or calendar).
+        </Approach>
+      </Improvement>
+    </ProposedImprovements>
+  </Section>
+
+  <Section id="information-architecture">
+    <Summary>Core features should be discoverable and not hidden behind a settings-style profile screen.</Summary>
+    <CurrentIssues>
+      <Issue id="profile-tab-core-features-hidden">
+        <Description>
+          The Profile tab currently acts as a dumping ground for core features (roles, goals, rituals, templates, privacy), reducing discoverability and making high-value features feel optional.
+        </Description>
+      </Issue>
+      <Issue id="reflection-no-triggers">
+        <Description>
+          Reflection is passive and requires user memory; there are no nudges, badges, or completion cues elsewhere in the app to pull users into reflection.
+        </Description>
+      </Issue>
+    </CurrentIssues>
+    <ProposedImprovements>
+      <Improvement id="promote-core-features-out-of-settings" priority="medium">
+        <Goal>Increase feature discovery and adoption.</Goal>
+        <Approach>
+          Promote key features (Templates, Balance Goals, Transition Rituals) into primary navigation or contextual surfaces (e.g., logging flows, dashboard cards), leaving Profile for true settings/account/privacy.
+        </Approach>
+      </Improvement>
+      <Improvement id="reflection-entry-triggers" priority="medium">
+        <Goal>Give reflection a clear trigger and completion visibility.</Goal>
+        <Approach>
+          Add indicators and prompts such as a weekly &quot;Reflect&quot; nudge, a badge on the Reflect tab when pending, and a visible completion state on dashboard or role insights.
+        </Approach>
+      </Improvement>
+    </ProposedImprovements>
+  </Section>
+
+  <Section id="role-editing">
+    <Summary>Users should be able to edit roles after creation without destructive consequences.</Summary>
+    <CurrentIssues>
+      <Issue id="no-role-edit-crud">
+        <Description>
+          Roles can be paused or deleted but not edited, forcing destructive workflows for simple fixes like typos or emoji changes.
+        </Description>
+      </Issue>
+    </CurrentIssues>
+    <ProposedImprovements>
+      <Improvement id="role-editing-non-destructive" priority="high">
+        <Goal>Support basic role CRUD safely.</Goal>
+        <Approach>
+          Add role editing (name, emoji, color, etc.) without requiring deletion, preserving activity associations.
+        </Approach>
+      </Improvement>
+    </ProposedImprovements>
+  </Section>
+
+  <Section id="energizing-activities-flow">
+    <Summary>Users can mark activities as energizing and view them in a role overview page.</Summary>
+    <CurrentBehavior>
+      <Behavior id="activity-logging-energizing-toggle">
+        <Description>
+          When logging an activity, there is an optional toggle to indicate whether the activity felt energizing.
+        </Description>
+      </Behavior>
+      <Behavior id="role-overview-energizing-visibility">
+        <Description>
+          In the role overview page, users can see the activities that felt energizing for that role.
+        </Description>
+      </Behavior>
+    </CurrentBehavior>
+    <PlannedAdditionsAndRefinements>
+      <Addition id="energizing-toggle-emphasis" priority="medium">
+        <Goal>Encourage consistent use of the energizing toggle without making it mandatory.</Goal>
+        <Approach>
+          Make the energizing toggle more noticeable (e.g., microcopy or subtle animation) and explain briefly why marking energizing activities matters.
+        </Approach>
+      </Addition>
+      <Addition id="energizing-summary-in-role-donut" priority="medium">
+        <Goal>Connect energizing activities to the new visual representation of roles.</Goal>
+        <Approach>
+          Link energizing activity data to the donut visualization and role overview:
+        </Approach>
+        <Details>
+          <Detail>Show an energizing vs non-energizing ratio per role when a donut segment is selected.</Detail>
+          <Detail>Surface a short insight such as &quot;Most energizing activities recently come from your &lt;Role&gt; role.&quot;</Detail>
+          <Detail>Provide a quick shortcut from the donut or main page into the role overview filtered to energizing activities.</Detail>
+        </Details>
+      </Addition>
+      <Addition id="energizing-history-and-patterns" priority="low">
+        <Goal>Help users identify patterns in what energizes them over time.</Goal>
+        <Approach>
+          In future iterations, consider simple trend views (e.g., weekly count of energizing activities per role) within the role overview or a dedicated insights area.
+        </Approach>
+      </Addition>
+    </PlannedAdditionsAndRefinements>
+  </Section>
+
+  <NextSteps>
+    <Step order="1">
+      Validate this plan with stakeholders and adjust priorities if needed.
+    </Step>
+    <Step order="2">
+      Break down each improvement into design tasks (wireframes, prototypes) and technical tasks before implementing any changes.
+    </Step>
+    <Step order="3">
+      Prototype the updated onboarding role selection with suggestions and test with a small group of users.
+    </Step>
+    <Step order="4">
+      Explore visual design options for the roles-as-donut main page concept, including accessibility considerations.
+    </Step>
+    <Step order="5">
+      Define data requirements and tracking for energizing activities to support both the role overview and donut insights.
+    </Step>
+    <Step order="6">
+      Design the post-onboarding dashboard empty state handoff (inline CTA, first-run copy) and validate that users reliably complete their first log.
+    </Step>
+    <Step order="7">
+      Decide where templates should live in the logging flow (QuickAdd, Calendar, role pages) and design the template surfacing strategy.
+    </Step>
+    <Step order="8">
+      Define the focus-to-logging feedback loop (nudge timing, copy, dismissal rules) and test for usefulness vs annoyance.
+    </Step>
+    <Step order="9">
+      Replace destructive role navigation with a preserved-context navigation pattern and add primary role actions (log, edit, filters).
+    </Step>
+    <Step order="10">
+      Wire the full activity log/history page into navigation and add clear entry points from the dashboard.
+    </Step>
+    <Step order="11">
+      Rework information architecture so core features are discoverable (reduce reliance on Profile accordions; add reflection triggers and completion cues).
+    </Step>
+    <Step order="12">
+      Add role editing (non-destructive CRUD) to prevent data loss and reduce friction.
+    </Step>
+  </NextSteps>
+
+</UserFlowImprovementPlan>
