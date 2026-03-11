@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAppState } from './hooks/useAppState';
 import { PRESET_COLORS } from './types';
 import { OnboardingPage } from './pages/OnboardingPage';
@@ -45,6 +46,7 @@ export function App() {
     number | undefined>(
     undefined);
   const [viewingRoleId, setViewingRoleId] = useState<string | null>(null);
+  const [quickAddInitialRoleIds, setQuickAddInitialRoleIds] = useState<string[] | undefined>(undefined);
   // Filter out paused roles for the main flow
   const activeRoles = useMemo(
     () => state.roles.filter((r) => !r.paused),
@@ -67,20 +69,8 @@ export function App() {
 
 
   }
-  if (viewingRoleId) {
-    const role = state.roles.find((r) => r.id === viewingRoleId);
-    if (role) {
-      return (
-        <RoleOverviewPage
-          role={role}
-          roles={state.roles}
-          activities={state.activities}
-          onBack={() => setViewingRoleId(null)}
-          onDeleteActivity={removeActivity} />);
+  const viewingRole = viewingRoleId ? state.roles.find((r) => r.id === viewingRoleId) : null;
 
-
-    }
-  }
   return (
     <div
       className="min-h-screen font-sans text-warm-900"
@@ -99,7 +89,6 @@ export function App() {
           background: `radial-gradient(ellipse 80% 50% at 50% 0%, ${ambientColor}12 0%, transparent 70%)`,
           transition: 'background 0.8s ease'
         }} />
-
       }
 
       <div className="relative z-10">
@@ -133,12 +122,12 @@ export function App() {
           reflections={state.reflections}
           onSaveReflection={saveReflection} /> :
 
-
         <ProfilePage
           roles={state.roles}
           activities={state.activities}
           onAddRole={addRole}
           onRemoveRole={removeRole}
+          onUpdateRole={updateRole}
           onTogglePause={togglePauseRole}
           roleBalanceGoals={state.roleBalanceGoals}
           onSetRoleBalanceGoals={setRoleBalanceGoals}
@@ -149,7 +138,6 @@ export function App() {
           onRemoveActivityTemplate={removeActivityTemplate}
           onClearActivityHistory={clearActivityHistory}
           onExportData={exportData} />
-
         }
       </div>
 
@@ -158,17 +146,59 @@ export function App() {
         onTabChange={setActiveTab}
         onOpenAdd={() => {
           setQuickAddInitialTime(undefined);
+          setQuickAddInitialRoleIds(undefined);
           setIsQuickAddOpen(true);
         }} />
 
+      {/* Role Detail Sheet */}
+      <AnimatePresence>
+        {viewingRole && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setViewingRoleId(null)}
+              className="fixed inset-0 bg-warm-900/30 backdrop-blur-sm z-40" />
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 28, stiffness: 220 }}
+              className="fixed bottom-0 left-0 right-0 z-50 max-h-[92vh] overflow-y-auto rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.12)]">
+              <RoleOverviewPage
+                role={viewingRole}
+                roles={state.roles}
+                activities={state.activities}
+                onBack={() => setViewingRoleId(null)}
+                onDeleteActivity={removeActivity}
+                onLogActivity={() => {
+                  setViewingRoleId(null);
+                  setQuickAddInitialTime(undefined);
+                  setQuickAddInitialRoleIds([viewingRole.id]);
+                  setIsQuickAddOpen(true);
+                }}
+                onEditRole={() => {
+                  setViewingRoleId(null);
+                  setActiveTab('profile');
+                }}
+              />
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       <QuickAddModal
         isOpen={isQuickAddOpen}
-        onClose={() => setIsQuickAddOpen(false)}
+        onClose={() => {
+          setIsQuickAddOpen(false);
+          setQuickAddInitialRoleIds(undefined);
+        }}
         roles={activeRoles}
         activityTemplates={state.activityTemplates}
         onAddActivity={addActivity}
-        initialTimestamp={quickAddInitialTime} />
+        initialTimestamp={quickAddInitialTime}
+        initialRoleIds={quickAddInitialRoleIds} />
 
     </div>);
 

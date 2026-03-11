@@ -1,6 +1,6 @@
-import React, { useMemo, Component } from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeftIcon, ClockIcon } from 'lucide-react';
+import { XIcon, ClockIcon, PlusIcon, PencilIcon } from 'lucide-react';
 import { Role, Activity, PRESET_COLORS } from '../types';
 import { ActivityCard } from '../components/ActivityCard';
 import { getRoleActivities, formatDuration } from '../utils/roleUtils';
@@ -10,13 +10,17 @@ interface RoleOverviewPageProps {
   activities: Activity[];
   onBack: () => void;
   onDeleteActivity: (id: string) => void;
+  onLogActivity?: () => void;
+  onEditRole?: () => void;
 }
 export function RoleOverviewPage({
   role,
   roles,
   activities,
   onBack,
-  onDeleteActivity
+  onDeleteActivity,
+  onLogActivity,
+  onEditRole,
 }: RoleOverviewPageProps) {
   const roleActivities = useMemo(
     () => getRoleActivities(activities, role.id),
@@ -31,9 +35,9 @@ export function RoleOverviewPage({
   // We use a seed based on the role name so it stays consistent for that role
   const imageUrl = `https://picsum.photos/seed/${encodeURIComponent(role.name)}/800/400`;
   return (
-    <div className="min-h-screen bg-warm-100 pb-28">
+    <div className="bg-warm-100 pb-10">
       {/* Header Image & Navigation */}
-      <div className="relative h-64 w-full overflow-hidden rounded-b-[3rem] shadow-warm-lg">
+      <div className="relative h-56 w-full overflow-hidden rounded-b-[2.5rem] shadow-warm-lg">
         <div className="absolute inset-0 bg-warm-900/20 z-10" />
         <img
           src={imageUrl}
@@ -42,17 +46,13 @@ export function RoleOverviewPage({
 
         <div
           className="absolute inset-0 z-10 opacity-60 mix-blend-multiply"
-          style={{
-            backgroundColor: color
-          }} />
+          style={{ backgroundColor: color }} />
 
-
-        <div className="absolute top-0 left-0 right-0 p-4 pt-8 z-20 flex justify-between items-center">
+        <div className="absolute top-0 left-0 right-0 p-4 pt-5 z-20 flex justify-end items-center">
           <button
             onClick={onBack}
-            className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors">
-
-            <ChevronLeftIcon className="w-6 h-6" />
+            className="w-9 h-9 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors">
+            <XIcon className="w-5 h-5" />
           </button>
         </div>
 
@@ -90,9 +90,9 @@ export function RoleOverviewPage({
         </div>
       </div>
 
-      <div className="max-w-lg mx-auto px-4 pt-8">
+      <div className="max-w-lg mx-auto px-4 pt-6">
         {/* Stats Row */}
-        <div className="flex gap-4 mb-8">
+        <div className="flex gap-4 mb-5">
           <div className="flex-1 bg-white rounded-2xl p-4 shadow-warm border border-warm-200 flex flex-col items-center justify-center">
             <span className="text-sm text-warm-800/60 font-medium mb-1">
               Total Time
@@ -110,6 +110,24 @@ export function RoleOverviewPage({
               {roleActivities.length}
             </span>
           </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-3 mb-7">
+          {onLogActivity && (
+            <button
+              onClick={onLogActivity}
+              className="flex-1 flex items-center justify-center gap-2 py-3 bg-warm-900 text-white rounded-2xl font-medium text-sm hover:bg-warm-800 transition-colors shadow-sm">
+              <PlusIcon className="w-4 h-4" /> Log Activity
+            </button>
+          )}
+          {onEditRole && (
+            <button
+              onClick={onEditRole}
+              className="flex items-center justify-center gap-2 px-5 py-3 bg-white border border-warm-200 text-warm-900 rounded-2xl font-medium text-sm hover:bg-warm-50 transition-colors shadow-sm">
+              <PencilIcon className="w-4 h-4" /> Edit Role
+            </button>
+          )}
         </div>
 
         {/* History List */}

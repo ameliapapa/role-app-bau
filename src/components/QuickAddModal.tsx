@@ -75,6 +75,7 @@ interface QuickAddModalProps {
   activityTemplates?: ActivityTemplate[];
   onAddActivity: (activity: Activity) => void;
   initialTimestamp?: number;
+  initialRoleIds?: string[];
 }
 export function QuickAddModal({
   isOpen,
@@ -82,7 +83,8 @@ export function QuickAddModal({
   roles,
   activityTemplates = [],
   onAddActivity,
-  initialTimestamp
+  initialTimestamp,
+  initialRoleIds,
 }: QuickAddModalProps) {
   const [name, setName] = useState('');
   const [note, setNote] = useState('');
@@ -93,6 +95,9 @@ export function QuickAddModal({
 
   useEffect(() => {
     if (isOpen) {
+      if (initialRoleIds && initialRoleIds.length > 0) {
+        setSelectedRoleIds(initialRoleIds.filter((id) => roles.some((r) => r.id === id)));
+      }
       setTimeout(() => inputRef.current?.focus(), 100);
     } else {
       setName('');

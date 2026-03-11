@@ -13,7 +13,9 @@ import {
   DownloadIcon,
   ChevronDownIcon,
   ChevronUpIcon,
-  XIcon } from
+  XIcon,
+  PencilIcon,
+  CheckIcon } from
 'lucide-react';
 import {
   Role,
@@ -39,6 +41,7 @@ interface ProfilePageProps {
   activityTemplates: ActivityTemplate[];
   onAddActivityTemplate: (template: ActivityTemplate) => void;
   onRemoveActivityTemplate: (id: string) => void;
+  onUpdateRole: (id: string, updates: Partial<Role>) => void;
   onClearActivityHistory: () => void;
   onExportData: () => void;
 }
@@ -48,6 +51,7 @@ export function ProfilePage({
   activities,
   onAddRole,
   onRemoveRole,
+  onUpdateRole,
   onTogglePause,
   roleBalanceGoals,
   onSetRoleBalanceGoals,
@@ -67,6 +71,13 @@ export function ProfilePage({
   const [emoji, setEmoji] = useState(COMMON_EMOJIS[0]);
   const [color, setColor] = useState<RoleColor>('coral');
   const [showEmojis, setShowEmojis] = useState(false);
+  // Role edit state
+  const [editingRoleId, setEditingRoleId] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editMotivation, setEditMotivation] = useState('');
+  const [editEmoji, setEditEmoji] = useState(COMMON_EMOJIS[0]);
+  const [editColor, setEditColor] = useState<RoleColor>('coral');
+  const [showEditEmojis, setShowEditEmojis] = useState(false);
   // Template form state
   const [isAddingTemplate, setIsAddingTemplate] = useState(false);
   const [templateName, setTemplateName] = useState('');
@@ -88,6 +99,25 @@ export function ProfilePage({
     setName('');
     setMotivation('');
     setIsAdding(false);
+  };
+  const startEditing = (role: Role) => {
+    setEditingRoleId(role.id);
+    setEditName(role.name);
+    setEditMotivation(role.motivation || '');
+    setEditEmoji(role.emoji);
+    setEditColor(role.color);
+    setShowEditEmojis(false);
+  };
+  const handleSaveEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editName.trim() || !editingRoleId) return;
+    onUpdateRole(editingRoleId, {
+      name: editName.trim(),
+      motivation: editMotivation.trim() || `Being a great ${editName.trim()}`,
+      emoji: editEmoji,
+      color: editColor,
+    });
+    setEditingRoleId(null);
   };
   const handleAddTemplate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -214,66 +244,130 @@ export function ProfilePage({
                   {roles.map((role) => {
                   const roleColor = PRESET_COLORS[role.color];
                   const isPaused = role.paused;
+                  const isEditing = editingRoleId === role.id;
                   return (
                     <div
                       key={role.id}
-                      className={`bg-white rounded-2xl p-4 shadow-sm border transition-all ${isPaused ? 'border-warm-200 opacity-60 grayscale-[0.5]' : 'border-warm-200'}`}>
+                      className={`bg-white rounded-2xl shadow-sm border transition-all ${isPaused && !isEditing ? 'border-warm-200 opacity-60 grayscale-[0.5]' : 'border-warm-200'}`}>
 
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex items-center gap-3">
-                            <div
-                            className="w-12 h-12 rounded-full flex items-center justify-center text-2xl shrink-0"
-                            style={{
-                              backgroundColor: `${roleColor}20`
-                            }}>
-
-                              {role.emoji}
-                            </div>
-                            <div>
-                              <h3 className="font-bold text-warm-900 text-lg flex items-center gap-2">
-                                {role.name}
-                                {isPaused &&
-                              <span className="text-[10px] uppercase tracking-wider font-bold bg-warm-200 text-warm-800 px-2 py-0.5 rounded-full">
-                                    Paused
-                                  </span>
+                      {isEditing ? (
+                        <form onSubmit={handleSaveEdit} className="p-4">
+                          <div className="flex justify-between items-center mb-4">
+                            <h3 className="font-bold text-warm-900">Edit Role</h3>
+                            <button
+                              type="button"
+                              onClick={() => setEditingRoleId(null)}
+                              className="text-sm font-medium text-warm-800/60 hover:text-warm-900">
+                              Cancel
+                            </button>
+                          </div>
+                          <div className="flex gap-3 mb-4">
+                            <div className="relative">
+                              <button
+                                type="button"
+                                onClick={() => setShowEditEmojis(!showEditEmojis)}
+                                className="w-12 h-12 flex items-center justify-center text-2xl bg-warm-100 rounded-xl hover:bg-warm-200 transition-colors shrink-0">
+                                {editEmoji}
+                              </button>
+                              {showEditEmojis &&
+                                <div className="absolute top-14 left-0 bg-white p-3 rounded-2xl shadow-warm-lg border border-warm-200 grid grid-cols-5 gap-2 z-10 w-64">
+                                  {COMMON_EMOJIS.map((e) =>
+                                    <button
+                                      key={e}
+                                      type="button"
+                                      onClick={() => { setEditEmoji(e); setShowEditEmojis(false); }}
+                                      className="w-10 h-10 flex items-center justify-center text-xl hover:bg-warm-100 rounded-lg transition-colors">
+                                      {e}
+                                    </button>
+                                  )}
+                                </div>
                               }
-                              </h3>
-                              <p className="text-sm text-warm-800/60 line-clamp-1">
-                                {role.motivation}
-                              </p>
+                            </div>
+                            <div className="flex-1 flex flex-col gap-2">
+                              <input
+                                type="text"
+                                value={editName}
+                                onChange={(e) => setEditName(e.target.value)}
+                                placeholder="Role name..."
+                                className="w-full bg-warm-100 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-warm-300 transition-all placeholder:text-warm-800/40"
+                                maxLength={20}
+                                autoFocus />
+                              <input
+                                type="text"
+                                value={editMotivation}
+                                onChange={(e) => setEditMotivation(e.target.value)}
+                                placeholder="Why does this matter?"
+                                className="w-full bg-warm-50 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-warm-300 transition-all placeholder:text-warm-800/40 border border-warm-100"
+                                maxLength={60} />
                             </div>
                           </div>
-                        </div>
-                        <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-warm-100">
+                          <div className="flex items-center gap-2 mb-4">
+                            {(Object.entries(PRESET_COLORS) as [RoleColor, string][]).map(([key, hex]) =>
+                              <button
+                                key={key}
+                                type="button"
+                                onClick={() => setEditColor(key)}
+                                className={`w-8 h-8 rounded-full transition-transform ${editColor === key ? 'scale-110 ring-2 ring-offset-2 ring-warm-800' : 'hover:scale-110'}`}
+                                style={{ backgroundColor: hex }} />
+                            )}
+                          </div>
                           <button
-                          onClick={() => onTogglePause(role.id)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-warm-800 hover:bg-warm-100 transition-colors">
-
-                            {isPaused ?
-                          <>
-                                <PlayIcon className="w-4 h-4" /> Resume
-                              </> :
-
-                          <>
-                                <PauseIcon className="w-4 h-4" /> Pause
-                              </>
-                          }
+                            type="submit"
+                            disabled={!editName.trim()}
+                            className="w-full py-3.5 bg-warm-900 text-white rounded-xl font-medium flex items-center justify-center gap-2 disabled:opacity-50 hover:bg-warm-800 transition-colors">
+                            <CheckIcon className="w-4 h-4" /> Save Changes
                           </button>
-                          <button
-                          onClick={() => {
-                            if (
-                            window.confirm(
-                              `Delete ${role.name}? This removes it from all activities.`
-                            ))
-
-                            onRemoveRole(role.id);
-                          }}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors">
-
-                            <TrashIcon className="w-4 h-4" /> Delete
-                          </button>
+                        </form>
+                      ) : (
+                        <div className="p-4">
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex items-center gap-3">
+                              <div
+                                className="w-12 h-12 rounded-full flex items-center justify-center text-2xl shrink-0"
+                                style={{ backgroundColor: `${roleColor}20` }}>
+                                {role.emoji}
+                              </div>
+                              <div>
+                                <h3 className="font-bold text-warm-900 text-lg flex items-center gap-2">
+                                  {role.name}
+                                  {isPaused &&
+                                    <span className="text-[10px] uppercase tracking-wider font-bold bg-warm-200 text-warm-800 px-2 py-0.5 rounded-full">
+                                      Paused
+                                    </span>
+                                  }
+                                </h3>
+                                <p className="text-sm text-warm-800/60 line-clamp-1">
+                                  {role.motivation}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex justify-end gap-2 mt-4 pt-4 border-t border-warm-100">
+                            <button
+                              onClick={() => startEditing(role)}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-warm-800 hover:bg-warm-100 transition-colors">
+                              <PencilIcon className="w-4 h-4" /> Edit
+                            </button>
+                            <button
+                              onClick={() => onTogglePause(role.id)}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-warm-800 hover:bg-warm-100 transition-colors">
+                              {isPaused ?
+                                <><PlayIcon className="w-4 h-4" /> Resume</> :
+                                <><PauseIcon className="w-4 h-4" /> Pause</>
+                              }
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (window.confirm(`Delete ${role.name}? This removes it from all activities.`))
+                                  onRemoveRole(role.id);
+                              }}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors">
+                              <TrashIcon className="w-4 h-4" /> Delete
+                            </button>
+                          </div>
                         </div>
-                      </div>);
+                      )}
+                    </div>);
 
                 })}
                   {!isAdding ?
