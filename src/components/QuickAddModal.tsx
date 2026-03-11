@@ -4,6 +4,70 @@ import { XIcon, SparklesIcon } from 'lucide-react';
 import { Role, Activity, ActivityTemplate } from '../types';
 import { generateId } from '../utils/roleUtils';
 import { RoleChip } from './RoleChip';
+// ── Draggable template row ─────────────────────────────────────────────────────
+function DraggableTemplateRow({
+  templates,
+  activeTemplateId,
+  onApply,
+}: {
+  templates: ActivityTemplate[];
+  activeTemplateId: string | null;
+  onApply: (tpl: ActivityTemplate) => void;
+}) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
+  const [dragLeft, setDragLeft] = useState(0);
+
+  useEffect(() => {
+    const measure = () => {
+      const track = trackRef.current?.offsetWidth ?? 0;
+      const inner = innerRef.current?.scrollWidth ?? 0;
+      setDragLeft(Math.min(0, track - inner));
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [templates.length]);
+
+  return (
+    <div className="mb-5">
+      <p className="text-xs font-semibold text-warm-800/40 uppercase tracking-wider mb-2">
+        Quick log
+      </p>
+      <div ref={trackRef} className="overflow-hidden cursor-grab active:cursor-grabbing">
+        <motion.div
+          ref={innerRef}
+          drag="x"
+          dragConstraints={{ left: dragLeft, right: 0 }}
+          dragElastic={0.08}
+          dragMomentum={true}
+          className="flex gap-2 w-max pb-1"
+        >
+          {templates.map((tpl) => {
+            const active = activeTemplateId === tpl.id;
+            return (
+              <motion.button
+                key={tpl.id}
+                type="button"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={() => onApply(tpl)}
+                whileTap={{ scale: 0.94 }}
+                className={`px-3 py-2 rounded-xl text-sm font-medium whitespace-nowrap flex-shrink-0 transition-colors select-none ${
+                  active
+                    ? 'bg-warm-900 text-white'
+                    : 'bg-warm-100 text-warm-800 hover:bg-warm-200'
+                }`}
+              >
+                {tpl.name}
+              </motion.button>
+            );
+          })}
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
 interface QuickAddModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -123,32 +187,11 @@ export function QuickAddModal({
 
               {/* ── Templates row ───────────────────────── */}
               {activityTemplates.length > 0 && (
-                <div className="mb-5 -mx-1">
-                  <p className="text-xs font-semibold text-warm-800/40 uppercase tracking-wider mb-2 px-1">
-                    Quick log
-                  </p>
-                  <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none px-1">
-                    {activityTemplates.map((tpl) => {
-                      const active = activeTemplateId === tpl.id;
-                      return (
-                        <motion.button
-                          key={tpl.id}
-                          type="button"
-                          onClick={() => applyTemplate(tpl)}
-                          whileTap={{ scale: 0.94 }}
-                          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium whitespace-nowrap flex-shrink-0 transition-colors ${
-                            active
-                              ? 'bg-warm-900 text-white'
-                              : 'bg-warm-100 text-warm-800 hover:bg-warm-200'
-                          }`}
-                        >
-                          <span>{tpl.emoji}</span>
-                          <span>{tpl.name}</span>
-                        </motion.button>
-                      );
-                    })}
-                  </div>
-                </div>
+                <DraggableTemplateRow
+                  templates={activityTemplates}
+                  activeTemplateId={activeTemplateId}
+                  onApply={applyTemplate}
+                />
               )}
 
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -215,6 +258,7 @@ export function QuickAddModal({
                     key={role.id}
                     role={role}
                     selected={selectedRoleIds.includes(role.id)}
+                    showEmoji={false}
                     onClick={toggleRole} />
 
                   )}

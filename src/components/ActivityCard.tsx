@@ -8,28 +8,21 @@ interface ActivityCardProps {
   activity: Activity;
   roles: Role[];
   onDelete?: (id: string) => void;
+  index?: number;
 }
-export function ActivityCard({ activity, roles, onDelete }: ActivityCardProps) {
+export function ActivityCard({ activity, roles, onDelete, index = 0 }: ActivityCardProps) {
   const activityRoles = roles.filter((r) => activity.roleIds.includes(r.id));
   return (
     <motion.div
       layout
-      initial={{
-        opacity: 0,
-        y: 10
-      }}
-      animate={{
-        opacity: 1,
-        y: 0
-      }}
-      exit={{
-        opacity: 0,
-        scale: 0.95
-      }}
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ delay: index * 0.04, duration: 0.28, ease: 'easeOut' }}
       className="bg-white rounded-2xl p-4 shadow-warm border border-warm-200 group relative overflow-hidden">
 
       <div className="flex justify-between items-start mb-3">
-        <h3 className="font-medium text-warm-900 text-lg leading-tight pr-8">
+        <h3 className="font-medium text-warm-900 text-lg leading-tight pr-10">
           {activity.name}
         </h3>
         <div className="flex flex-col items-end gap-1">
@@ -58,7 +51,7 @@ export function ActivityCard({ activity, roles, onDelete }: ActivityCardProps) {
       {onDelete &&
       <button
         onClick={() => onDelete(activity.id)}
-        className="absolute top-3 right-3 p-2 text-warm-800/40 hover:text-red-500 hover:bg-red-50 rounded-full opacity-0 group-hover:opacity-100 transition-all focus:opacity-100"
+        className="absolute top-3 right-3 p-2 text-warm-800/25 hover:text-red-500 hover:bg-red-50 rounded-full transition-all active:scale-90"
         aria-label="Delete activity">
 
           <TrashIcon className="w-4 h-4" />

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRightIcon } from 'lucide-react';
 import { Role, Activity, TimePeriod, PRESET_COLORS } from '../types';
 import { VennDiagram } from '../components/VennDiagram';
@@ -49,7 +49,7 @@ export function DashboardPage({
   );
 
   const displayActivities = useMemo(() => {
-    if (selectedRoleIds.length === 0) return periodActivities.slice(0, 5);
+    if (selectedRoleIds.length === 0) return periodActivities.slice(0, 10);
     if (selectedRoleIds.length === 1) return getRoleActivities(periodActivities, selectedRoleIds[0]);
     return getActivitiesByExactRoles(periodActivities, selectedRoleIds);
   }, [periodActivities, selectedRoleIds]);
@@ -142,14 +142,17 @@ export function DashboardPage({
 
         <div className="space-y-3">
           {displayActivities.length > 0 ? (
-            displayActivities.map((activity) => (
-              <ActivityCard
-                key={activity.id}
-                activity={activity}
-                roles={roles}
-                onDelete={onDeleteActivity}
-              />
-            ))
+            <AnimatePresence initial={false}>
+              {displayActivities.map((activity, idx) => (
+                <ActivityCard
+                  key={activity.id}
+                  activity={activity}
+                  roles={roles}
+                  onDelete={onDeleteActivity}
+                  index={idx}
+                />
+              ))}
+            </AnimatePresence>
           ) : isFirstRun ? (
             // ── First-run CTA ──────────────────────────────
             <motion.div

@@ -150,9 +150,9 @@ export function VennDiagram({
   });
 
   // SVG
-  const SIZE = 280;
+  const SIZE = 220;
   const CX = SIZE / 2, CY = SIZE / 2;
-  const OUTER_R = 108, INNER_R = 64;
+  const OUTER_R = 84, INNER_R = 50;
   const GAP = roles.length === 1 ? 0 : 0.045;
   const POP = 10;
 

@@ -7,6 +7,7 @@ interface RoleChipProps {
   onClick?: (id: string) => void;
   selected?: boolean;
   size?: 'sm' | 'md';
+  showEmoji?: boolean;
   className?: string;
 }
 export function RoleChip({
@@ -15,6 +16,7 @@ export function RoleChip({
   onClick,
   selected = false,
   size = 'md',
+  showEmoji = true,
   className = ''
 }: RoleChipProps) {
   const baseColor = PRESET_COLORS[role.color];
@@ -35,7 +37,7 @@ export function RoleChip({
         border: `1px solid ${baseColor}40`
       }}>
 
-      <span className="mr-1.5">{role.emoji}</span>
+      {showEmoji && <span className="mr-1.5">{role.emoji}</span>}
       <span className="font-medium">{role.name}</span>
       {role.aspirational &&
       <SparklesIcon
